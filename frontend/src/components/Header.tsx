@@ -11,9 +11,9 @@ export const Header: React.FC = () => {
       <div className="main-content" style={{ padding: '0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
           <img 
-            src="/logo.png?v=10" 
-            alt="Lemoka Centro Automotivo" 
-            style={{ height: '58px', width: 'auto', objectFit: 'contain' }} 
+            src="/logo.png?v=99" 
+            alt="Lemoka Centro Automotivo Logo Oficial" 
+            style={{ height: '62px', width: 'auto', objectFit: 'contain' }} 
           />
         </Link>
 

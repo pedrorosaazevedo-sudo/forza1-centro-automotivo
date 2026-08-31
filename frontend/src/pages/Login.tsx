@@ -4,7 +4,7 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import { Shield, UserCheck } from 'lucide-react';
 import { api } from '../services/api';
 
-const APP_VERSION = 'v4.0';
+const APP_VERSION = 'v5.0';
 
 export const Login: React.FC = () => {
   const { login, usuario } = useAuth();
@@ -61,9 +61,9 @@ export const Login: React.FC = () => {
       <div className="card card-gold" style={{ width: '100%', maxWidth: '420px', padding: '2rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           <img 
-            src="/logo.png?v=10" 
+            src="/logo.png?v=99" 
             alt="Lemoka Centro Automotivo Logo Oficial" 
-            style={{ width: '100%', maxWidth: '300px', height: 'auto', margin: '0 auto', display: 'block', objectFit: 'contain' }}
+            style={{ width: '100%', maxWidth: '310px', height: 'auto', margin: '0 auto', display: 'block', objectFit: 'contain' }}
           />
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
             Nova Iguaçu - RJ • Gestão Completa
