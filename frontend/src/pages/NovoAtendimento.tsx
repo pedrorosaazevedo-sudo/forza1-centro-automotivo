@@ -78,8 +78,24 @@ export const NovoAtendimento: React.FC = () => {
     }
   };
 
-  const handleDownloadPDF = (atendimentoId: string) => {
-    window.open(`/api/atendimentos/${atendimentoId}/pdf`, '_blank');
+  const handleDownloadPDF = async (atendimentoId: string) => {
+    try {
+      const response = await api.get(`/atendimentos/${atendimentoId}/pdf`, {
+        responseType: 'blob'
+      });
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Nota_Lemoka_${(nomeCliente || 'Atendimento').replace(/\s+/g, '_')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Erro ao baixar PDF:', err);
+      alert('Erro ao baixar o PDF do atendimento.');
+    }
   };
 
   const resetForm = () => {

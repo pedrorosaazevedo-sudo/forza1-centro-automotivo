@@ -44,8 +44,24 @@ export const Historico: React.FC = () => {
     loadData();
   }, [busca, dataInicio, dataFim]);
 
-  const handleDownloadPDF = (id: string) => {
-    window.open(`/api/atendimentos/${id}/pdf`, '_blank');
+  const handleDownloadPDF = async (id: string, nomeCliente?: string) => {
+    try {
+      const response = await api.get(`/atendimentos/${id}/pdf`, {
+        responseType: 'blob'
+      });
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Nota_Lemoka_${(nomeCliente || 'Atendimento').replace(/\s+/g, '_')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Erro ao baixar PDF:', err);
+      alert('Erro ao gerar o PDF da nota.');
+    }
   };
 
   const handleOpenEdit = (at: Atendimento) => {
@@ -209,7 +225,7 @@ export const Historico: React.FC = () => {
                   <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                     <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'flex-end' }}>
                       <button
-                        onClick={() => handleDownloadPDF(at.id)}
+                        onClick={() => handleDownloadPDF(at.id, at.nomeCliente)}
                         className="btn btn-secondary btn-sm"
                         title="Baixar Nota PDF"
                       >
