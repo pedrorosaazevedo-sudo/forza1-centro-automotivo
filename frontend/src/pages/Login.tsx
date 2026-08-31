@@ -4,7 +4,7 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import { Shield, UserCheck } from 'lucide-react';
 import { api } from '../services/api';
 
-const APP_VERSION = 'v3.4';
+const APP_VERSION = 'v3.5';
 
 export const Login: React.FC = () => {
   const { login, usuario } = useAuth();
@@ -61,7 +61,7 @@ export const Login: React.FC = () => {
       <div className="card card-gold" style={{ width: '100%', maxWidth: '420px', padding: '2rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           <img 
-            src="/logo.png" 
+            src="/logo.png?v=4" 
             alt="Lemoka Centro Automotivo Logo Oficial" 
             style={{ width: '100%', maxWidth: '280px', height: 'auto', margin: '0 auto', display: 'block', objectFit: 'contain' }}
           />
