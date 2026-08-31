@@ -17,7 +17,11 @@ export const Login: React.FC = () => {
     try {
       await login(email, senha);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Erro ao efetuar login. Verifique suas credenciais.');
+      if (!err.response) {
+        setError('Não foi possível conectar ao servidor da API. Verifique a URL do backend no Render/Netlify.');
+      } else {
+        setError(err.response?.data?.error || 'Erro ao efetuar login. Verifique suas credenciais.');
+      }
     } finally {
       setLoading(false);
     }
