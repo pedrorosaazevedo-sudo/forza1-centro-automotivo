@@ -10,8 +10,14 @@ frontend/dist/
 
 # Environment & Logs
 .env
+.env.*
+!.env.example
 *.log
 npm-debug.log*
+
+# Database & Storage
+*.db
+*.db-journal
 
 # OS / IDE
 .DS_Store
