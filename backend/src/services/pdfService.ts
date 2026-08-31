@@ -17,26 +17,25 @@ export const generateReceiptPDF = (atendimento: AtendimentoComMecanico): Promise
     // Header Background Accent
     doc.rect(0, 0, 595.28, 120).fill('#0f1117');
 
-    // Draw Official Logo if available
+    // Draw Official Logo on Left
     const logoPath = path.join(__dirname, '../../public/logo.png');
     let hasLogo = false;
     if (fs.existsSync(logoPath)) {
       try {
-        doc.image(logoPath, 40, 22, { height: 50 });
+        doc.image(logoPath, 40, 20, { height: 78 });
         hasLogo = true;
       } catch (e) {
         console.error('Erro ao renderizar logo no PDF:', e);
       }
     }
 
-    const textX = hasLogo ? 180 : 40;
+    if (!hasLogo) {
+      doc.fillColor('#f5a623').fontSize(22).font('Helvetica-Bold').text('LEMOKA', 40, 30);
+      doc.fillColor('#ffffff').fontSize(14).font('Helvetica').text('CENTRO AUTOMOTIVO', 40, 56);
+      doc.fillColor('#94a3b8').fontSize(9).text('Nova Iguaçu - RJ | Atendimento Especializado', 40, 76);
+    }
 
-    // Title & Subtitle
-    doc.fillColor('#f5a623').fontSize(20).font('Helvetica-Bold').text('LEMOKA', textX, 30);
-    doc.fillColor('#ffffff').fontSize(13).font('Helvetica').text('CENTRO AUTOMOTIVO', textX, 54);
-    doc.fillColor('#94a3b8').fontSize(9).text('Nova Iguaçu - RJ | Atendimento Especializado', textX, 74);
-
-    // Receipt Number & Date
+    // Receipt Number & Date (Formatted cleanly on the right)
     const formattedDate = new Date(atendimento.data).toLocaleDateString('pt-BR', {
       day: '2-digit',
       month: '2-digit',
@@ -45,9 +44,9 @@ export const generateReceiptPDF = (atendimento: AtendimentoComMecanico): Promise
       minute: '2-digit'
     });
 
-    doc.fillColor('#f5a623').fontSize(12).font('Helvetica-Bold').text(`NOTA DE ATENDIMENTO #${atendimento.id.slice(0, 8).toUpperCase()}`, 330, 35, { align: 'right' });
-    doc.fillColor('#cbd5e1').fontSize(10).font('Helvetica').text(`Data: ${formattedDate}`, 330, 55, { align: 'right' });
-    doc.fillColor('#cbd5e1').fontSize(10).text(`Pagamento: ${atendimento.formaPagamento}`, 330, 72, { align: 'right' });
+    doc.fillColor('#f5a623').fontSize(12).font('Helvetica-Bold').text(`NOTA DE ATENDIMENTO #${atendimento.id.slice(0, 8).toUpperCase()}`, 300, 35, { align: 'right' });
+    doc.fillColor('#cbd5e1').fontSize(10).font('Helvetica').text(`Data: ${formattedDate}`, 300, 55, { align: 'right' });
+    doc.fillColor('#cbd5e1').fontSize(10).text(`Forma de Pagamento: ${atendimento.formaPagamento}`, 300, 72, { align: 'right' });
 
     doc.moveDown(4);
 
