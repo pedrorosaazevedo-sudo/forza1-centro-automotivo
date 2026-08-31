@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Wrench, Shield, Bell } from 'lucide-react';
+import { LogOut, Shield, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const Header: React.FC = () => {
@@ -9,13 +9,15 @@ export const Header: React.FC = () => {
   return (
     <header className="header">
       <div className="main-content" style={{ padding: '0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link to="/" className="logo-badge">
-          <div className="logo-icon">
-            <Wrench size={22} />
-          </div>
+        <Link to="/" className="logo-badge" style={{ gap: '0.75rem', textDecoration: 'none' }}>
+          <img 
+            src="/logo.png" 
+            alt="Lemoka Centro Automotivo Logo" 
+            style={{ height: '44px', width: 'auto', objectFit: 'contain', borderRadius: '4px' }} 
+          />
           <div>
-            <div className="logo-text-title">LEMOKA <span>OFICINA</span></div>
-            <div className="logo-text-sub">Centro Automotivo • RJ</div>
+            <div className="logo-text-title" style={{ fontSize: '1.25rem', lineHeight: '1.1' }}>LEMOKA <span style={{ color: 'var(--gold)' }}>OFICINA</span></div>
+            <div className="logo-text-sub" style={{ fontSize: '0.7rem' }}>Centro Automotivo • Nova Iguaçu</div>
           </div>
         </Link>
 

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Navigate } from 'react-router-dom';
-import { Wrench, Shield, UserCheck, Lock } from 'lucide-react';
+import { Shield, UserCheck } from 'lucide-react';
 import { api } from '../services/api';
 
-const APP_VERSION = 'v3.2';
+const APP_VERSION = 'v3.3';
 
 export const Login: React.FC = () => {
   const { login, usuario } = useAuth();
@@ -27,13 +27,9 @@ export const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      console.log('[Login] Tentando login para:', email);
       await login(email, senha);
-      console.log('[Login] Sucesso! Redirecionando para o Dashboard...');
       navigate('/', { replace: true });
     } catch (err: any) {
-      console.error('[Login] Erro completo:', err);
-      
       if (!err.response) {
         setError('Não foi possível conectar ao servidor da API.');
         setDebugInfo(`Sem resposta do servidor. URL da API: ${api.defaults.baseURL}. Erro: ${err.message}`);
@@ -64,10 +60,12 @@ export const Login: React.FC = () => {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', background: 'var(--bg-main)' }}>
       <div className="card card-gold" style={{ width: '100%', maxWidth: '420px', padding: '2rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div className="logo-icon" style={{ margin: '0 auto 1rem auto', width: '56px', height: '56px' }}>
-            <Wrench size={32} />
-          </div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
+          <img 
+            src="/logo.png" 
+            alt="Lemoka Centro Automotivo Logo" 
+            style={{ width: '80%', maxWidth: '240px', height: 'auto', margin: '0 auto 1.25rem auto', display: 'block', objectFit: 'contain' }}
+          />
+          <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
             LEMOKA <span style={{ color: 'var(--gold)' }}>OFICINA</span>
           </h1>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>

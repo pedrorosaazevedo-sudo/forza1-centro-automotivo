@@ -1,5 +1,7 @@
 import PDFDocument from 'pdfkit';
 import { Atendimento, Mecanico } from '@prisma/client';
+import path from 'path';
+import fs from 'fs';
 
 type AtendimentoComMecanico = Atendimento & { mecanico?: Mecanico };
 
@@ -15,10 +17,24 @@ export const generateReceiptPDF = (atendimento: AtendimentoComMecanico): Promise
     // Header Background Accent
     doc.rect(0, 0, 595.28, 120).fill('#0f1117');
 
-    // Title & Logo
-    doc.fillColor('#f5a623').fontSize(22).font('Helvetica-Bold').text('LEMOKA', 40, 30);
-    doc.fillColor('#ffffff').fontSize(14).font('Helvetica').text('CENTRO AUTOMOTIVO', 40, 56);
-    doc.fillColor('#94a3b8').fontSize(9).text('Nova Iguaçu - RJ | Atendimento Especializado', 40, 76);
+    // Draw Official Logo if available
+    const logoPath = path.join(__dirname, '../../public/logo.png');
+    let hasLogo = false;
+    if (fs.existsSync(logoPath)) {
+      try {
+        doc.image(logoPath, 40, 22, { height: 50 });
+        hasLogo = true;
+      } catch (e) {
+        console.error('Erro ao renderizar logo no PDF:', e);
+      }
+    }
+
+    const textX = hasLogo ? 180 : 40;
+
+    // Title & Subtitle
+    doc.fillColor('#f5a623').fontSize(20).font('Helvetica-Bold').text('LEMOKA', textX, 30);
+    doc.fillColor('#ffffff').fontSize(13).font('Helvetica').text('CENTRO AUTOMOTIVO', textX, 54);
+    doc.fillColor('#94a3b8').fontSize(9).text('Nova Iguaçu - RJ | Atendimento Especializado', textX, 74);
 
     // Receipt Number & Date
     const formattedDate = new Date(atendimento.data).toLocaleDateString('pt-BR', {
@@ -89,7 +105,7 @@ export const generateReceiptPDF = (atendimento: AtendimentoComMecanico): Promise
     y += 120;
     doc.strokeColor('#cbd5e1').lineWidth(0.5).moveTo(40, y).lineTo(555, y).stroke();
     y += 12;
-    doc.fillColor('#64748b').fontSize(9).font('Helvetica').text('Lemoka Centro Automotivo - Qualidade, transparência e confiança em serviços automotivos.', 40, y, { align: 'center' });
+    doc.fillColor('#64748b').fontSize(9).font('Helvetica').text('Lemoka Centro Automotivo - Com Deus Tudo é Possível', 40, y, { align: 'center' });
     doc.fillColor('#94a3b8').fontSize(8).text('Nova Iguaçu, RJ | Telefone & WhatsApp de Atendimento', 40, y + 14, { align: 'center' });
 
     doc.end();
