@@ -1,7 +1,6 @@
-const CACHE_NAME = 'lemoka-pwa-v1';
+const CACHE_NAME = 'lemoka-pwa-v3';
 const ASSETS_TO_CACHE = [
   '/',
-  '/index.html',
   '/manifest.json'
 ];
 
@@ -15,13 +14,14 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate Event
+// Activate Event - Delete ALL old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cache) => {
           if (cache !== CACHE_NAME) {
+            console.log('[SW] Deletando cache antigo:', cache);
             return caches.delete(cache);
           }
         })
@@ -31,10 +31,26 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch Event - Network First with Cache Fallback
+// Fetch Event - Network First, but NEVER cache API requests or JS bundles
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   
+  const url = new URL(event.request.url);
+
+  // Never intercept API calls or external requests
+  if (url.pathname.startsWith('/api') || url.hostname.includes('onrender.com')) {
+    return;
+  }
+
+  // For JS/CSS assets, always go network first
+  if (url.pathname.startsWith('/assets/')) {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // For navigation requests (HTML pages), always network first
   event.respondWith(
     fetch(event.request)
       .then((response) => {
