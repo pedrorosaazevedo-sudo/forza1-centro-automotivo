@@ -1,0 +1,79 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Usuario {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  senhaHash String
+  papel     String   @default("OPERACIONAL") // OPERACIONAL | ADMIN
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("usuarios")
+}
+
+model Mecanico {
+  id            String        @id @default(uuid())
+  nome          String
+  especialidade String
+  createdAt     DateTime      @default(now())
+  atendimentos  Atendimento[]
+
+  @@map("mecanicos")
+}
+
+model DespesaFixa {
+  id           String   @id @default(uuid())
+  nome         String
+  categoria    String
+  valor        Float
+  dataCadastro DateTime @default(now())
+
+  @@map("despesas_fixas")
+}
+
+model Atendimento {
+  id                 String   @id @default(uuid())
+  data               DateTime @default(now())
+  nomeCliente        String
+  telefoneCliente    String?
+  veiculo            String?
+  mecanicoId         String
+  mecanico           Mecanico @relation(fields: [mecanicoId], references: [id])
+  descricaoServico   String
+  valorPecas         Float    @default(0)
+  valorServico       Float    @default(0)
+  valorTotal         Float
+  percentualComissao Float    @default(0)
+  valorComissao      Float
+  formaPagamento     String   // PIX | CREDITO | DEBITO | DINHEIRO
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("atendimentos")
+}
+
+model TrafegoSemanal {
+  id                 String   @id @default(uuid())
+  semanaReferencia   DateTime
+  mensagensRecebidas Int
+  valorInvestido     Float
+  createdAt          DateTime @default(now())
+
+  @@map("trafego_semanal")
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  endpoint  String   @unique
+  keys      String   // JSON stringified { p256dh, auth }
+  createdAt DateTime @default(now())
+
+  @@map("push_subscriptions")
+}

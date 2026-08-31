@@ -1,0 +1,56 @@
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import { LayoutDashboard, PlusCircle, History, Users, DollarSign, TrendingUp, Bell } from 'lucide-react';
+
+export const Navigation: React.FC = () => {
+  const navItems = [
+    { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/novo', label: 'Novo', icon: PlusCircle },
+    { to: '/historico', label: 'Histórico', icon: History },
+    { to: '/mecanicos', label: 'Mecânicos', icon: Users },
+    { to: '/despesas', label: 'Despesas', icon: DollarSign },
+    { to: '/trafego', label: 'Tráfego', icon: TrendingUp },
+  ];
+
+  return (
+    <>
+      {/* Desktop Navigation */}
+      <div className="main-content" style={{ padding: '0.75rem 1.25rem 0 1.25rem' }}>
+        <nav className="desktop-nav">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === '/'}
+                className={({ isActive }) => `desktop-nav-link ${isActive ? 'active' : ''}`}
+              >
+                <Icon size={18} />
+                {item.label}
+              </NavLink>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="mobile-nav">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === '/'}
+              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            >
+              <Icon size={20} />
+              <span>{item.label}</span>
+            </NavLink>
+          );
+        })}
+      </nav>
+    </>
+  );
+};

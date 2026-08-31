@@ -1,0 +1,24 @@
+{
+  "short_name": "Lemoka",
+  "name": "Lemoka Centro Automotivo",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0f1117",
+  "theme_color": "#0f1117",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "description": "Sistema de Gestão Operacional e Financeira da Oficina Lemoka Centro Automotivo"
+}
