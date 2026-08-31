@@ -9,16 +9,12 @@ export const Header: React.FC = () => {
   return (
     <header className="header">
       <div className="main-content" style={{ padding: '0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link to="/" className="logo-badge" style={{ gap: '0.75rem', textDecoration: 'none' }}>
+        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
           <img 
             src="/logo.png" 
-            alt="Lemoka Centro Automotivo Logo" 
-            style={{ height: '44px', width: 'auto', objectFit: 'contain', borderRadius: '4px' }} 
+            alt="Lemoka Centro Automotivo Logo Oficial" 
+            style={{ height: '52px', width: 'auto', objectFit: 'contain' }} 
           />
-          <div>
-            <div className="logo-text-title" style={{ fontSize: '1.25rem', lineHeight: '1.1' }}>LEMOKA <span style={{ color: 'var(--gold)' }}>OFICINA</span></div>
-            <div className="logo-text-sub" style={{ fontSize: '0.7rem' }}>Centro Automotivo • Nova Iguaçu</div>
-          </div>
         </Link>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>

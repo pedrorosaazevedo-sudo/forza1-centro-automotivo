@@ -4,7 +4,7 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import { Shield, UserCheck } from 'lucide-react';
 import { api } from '../services/api';
 
-const APP_VERSION = 'v3.3';
+const APP_VERSION = 'v3.4';
 
 export const Login: React.FC = () => {
   const { login, usuario } = useAuth();
@@ -59,16 +59,13 @@ export const Login: React.FC = () => {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', background: 'var(--bg-main)' }}>
       <div className="card card-gold" style={{ width: '100%', maxWidth: '420px', padding: '2rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           <img 
             src="/logo.png" 
-            alt="Lemoka Centro Automotivo Logo" 
-            style={{ width: '80%', maxWidth: '240px', height: 'auto', margin: '0 auto 1.25rem auto', display: 'block', objectFit: 'contain' }}
+            alt="Lemoka Centro Automotivo Logo Oficial" 
+            style={{ width: '100%', maxWidth: '280px', height: 'auto', margin: '0 auto', display: 'block', objectFit: 'contain' }}
           />
-          <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
-            LEMOKA <span style={{ color: 'var(--gold)' }}>OFICINA</span>
-          </h1>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
             Nova Iguaçu - RJ • Gestão Completa
           </p>
         </div>
