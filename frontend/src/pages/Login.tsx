@@ -1,17 +1,24 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { Wrench, Shield, UserCheck, Lock } from 'lucide-react';
 import { api } from '../services/api';
 
-const APP_VERSION = 'v3.1';
+const APP_VERSION = 'v3.2';
 
 export const Login: React.FC = () => {
-  const { login } = useAuth();
+  const { login, usuario } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [debugInfo, setDebugInfo] = useState('');
+
+  // Se o usuário já estiver autenticado, redireciona direto para o Dashboard (/)
+  if (usuario) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,18 +28,16 @@ export const Login: React.FC = () => {
 
     try {
       console.log('[Login] Tentando login para:', email);
-      console.log('[Login] API baseURL:', api.defaults.baseURL);
       await login(email, senha);
-      console.log('[Login] Login bem-sucedido!');
+      console.log('[Login] Sucesso! Redirecionando para o Dashboard...');
+      navigate('/', { replace: true });
     } catch (err: any) {
       console.error('[Login] Erro completo:', err);
       
       if (!err.response) {
-        // Network error - no response at all
         setError('Não foi possível conectar ao servidor da API.');
         setDebugInfo(`Sem resposta do servidor. URL da API: ${api.defaults.baseURL}. Erro: ${err.message}`);
       } else {
-        // Server responded with error
         const status = err.response?.status;
         const data = err.response?.data;
         const errorMsg = typeof data === 'object' ? data?.error : String(data).substring(0, 100);
