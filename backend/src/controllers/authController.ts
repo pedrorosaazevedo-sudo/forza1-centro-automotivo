@@ -14,7 +14,7 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'E-mail e senha são obrigatórios' });
     }
 
-    const usuario = await prisma.usuario.findUnique({ where: { email: email.toLowerCase() } });
+    const usuario = await prisma.usuario.findUnique({ where: { email: email.toLowerCase().trim() } });
     if (!usuario) {
       return res.status(401).json({ error: 'Credenciais inválidas' });
     }
@@ -24,9 +24,11 @@ export const login = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Credenciais inválidas' });
     }
 
+    const secret = config.jwtSecret || 'lemoka_prod_secret_key_8f93a1c2b5d4e6f7a8b9c0d1e2f3a4b5';
+
     const token = jwt.sign(
       { id: usuario.id, email: usuario.email, papel: usuario.papel },
-      config.jwtSecret,
+      secret,
       { expiresIn: '30d' }
     );
 
@@ -38,9 +40,9 @@ export const login = async (req: Request, res: Response) => {
         papel: usuario.papel
       }
     });
-  } catch (error) {
-    console.error('Erro no login:', error);
-    return res.status(500).json({ error: 'Erro interno ao realizar login' });
+  } catch (error: any) {
+    console.error('Erro detalhado no login:', error);
+    return res.status(500).json({ error: 'Erro interno ao realizar login', details: error?.message });
   }
 };
 
