@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Wrench, Shield, UserCheck, Lock } from 'lucide-react';
+import { api } from '../services/api';
+
+const APP_VERSION = 'v3.1';
 
 export const Login: React.FC = () => {
   const { login } = useAuth();
@@ -8,19 +11,34 @@ export const Login: React.FC = () => {
   const [senha, setSenha] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [debugInfo, setDebugInfo] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setDebugInfo('');
     setLoading(true);
 
     try {
+      console.log('[Login] Tentando login para:', email);
+      console.log('[Login] API baseURL:', api.defaults.baseURL);
       await login(email, senha);
+      console.log('[Login] Login bem-sucedido!');
     } catch (err: any) {
+      console.error('[Login] Erro completo:', err);
+      
       if (!err.response) {
-        setError('Não foi possível conectar ao servidor da API. Verifique a URL do backend no Render/Netlify.');
+        // Network error - no response at all
+        setError('Não foi possível conectar ao servidor da API.');
+        setDebugInfo(`Sem resposta do servidor. URL da API: ${api.defaults.baseURL}. Erro: ${err.message}`);
       } else {
-        setError(err.response?.data?.error || 'Erro ao efetuar login. Verifique suas credenciais.');
+        // Server responded with error
+        const status = err.response?.status;
+        const data = err.response?.data;
+        const errorMsg = typeof data === 'object' ? data?.error : String(data).substring(0, 100);
+        
+        setError(errorMsg || `Erro do servidor (HTTP ${status})`);
+        setDebugInfo(`Status: ${status} | URL: ${api.defaults.baseURL} | Resposta: ${JSON.stringify(data).substring(0, 200)}`);
       }
     } finally {
       setLoading(false);
@@ -55,6 +73,12 @@ export const Login: React.FC = () => {
         {error && (
           <div className="alert alert-critico">
             {error}
+          </div>
+        )}
+
+        {debugInfo && (
+          <div style={{ background: 'rgba(245,166,35,0.1)', border: '1px solid rgba(245,166,35,0.3)', borderRadius: '8px', padding: '0.5rem 0.75rem', marginBottom: '1rem', fontSize: '0.65rem', color: 'var(--text-secondary)', wordBreak: 'break-all' }}>
+            🔍 Debug: {debugInfo}
           </div>
         )}
 
@@ -114,6 +138,10 @@ export const Login: React.FC = () => {
               <Shield size={14} color="var(--gold)" /> Suporte Admin
             </button>
           </div>
+        </div>
+
+        <div style={{ marginTop: '1rem', textAlign: 'center', fontSize: '0.6rem', color: 'var(--text-muted)', opacity: 0.5 }}>
+          {APP_VERSION} • API: {api.defaults.baseURL}
         </div>
       </div>
     </div>
