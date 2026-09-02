@@ -93,22 +93,6 @@ export const Login: React.FC = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', justifyContent: 'center' }}>
-            <button 
-              type="button" 
-              className="btn btn-secondary btn-sm"
-              onClick={() => { setEmail('operacional@forza1.com.br'); setSenha('forza123'); }}
-            >
-              Demo Op.
-            </button>
-            <button 
-              type="button" 
-              className="btn btn-secondary btn-sm"
-              onClick={() => { setEmail('admin@forza1.com.br'); setSenha('admin123'); }}
-            >
-              Demo Admin
-            </button>
-          </div>
 
           <button 
             type="submit" 
