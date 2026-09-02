@@ -88,23 +88,23 @@ model Atendimento {
 
 model EmpresaConfig {
   id                          String   @id @default(uuid())
-  razaoSocial                 String   @default("Lemoka Centro Automotivo LTDA")
-  nomeFantasia                String   @default("Lemoka")
-  cnpj                        String   @default("37.912.027/0001-60")
-  inscricaoMunicipal          String?
-  inscricaoEstadual           String?
-  cep                         String   @default("26290-600")
-  endereco                    String   @default("Av. Abilio Augusto Távora")
-  numero                      String   @default("4505")
+  razaoSocial                 String   @default("Forza 1 Centro Automotivo LTDA")
+  nomeFantasia                String   @default("Forza 1")
+  cnpj                        String   @default("45.123.890/0001-12")
+  inscricaoMunicipal          String?  @default("Pendente do contador")
+  inscricaoEstadual           String?  @default("Pendente de confirmação")
+  cep                         String   @default("21650-450")
+  endereco                    String   @default("Av. Prof. Bernardino Rocha")
+  numero                      String   @default("92")
   complemento                 String?
-  bairro                      String   @default("Valverde")
-  cidade                      String   @default("Nova Iguaçu")
+  bairro                      String   @default("Pavuna")
+  cidade                      String   @default("Rio de Janeiro")
   uf                          String   @default("RJ")
-  telefone                    String?
-  whatsapp                    String?
-  email                       String?
+  telefone                    String?  @default("(21) 96484-3565")
+  whatsapp                    String?  @default("(21) 96484-3565")
+  email                       String?  @default("contato@forza1.com.br")
   logoUrl                     String?
-  regimeTributario            String?  // Pendente do contador
+  regimeTributario            String?  @default("Simples Nacional")
   informacoesFiscaisAdicionais String?
   createdAt                   DateTime @default(now())
   updatedAt                   DateTime @updatedAt

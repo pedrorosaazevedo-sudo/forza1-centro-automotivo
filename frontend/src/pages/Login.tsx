@@ -57,8 +57,8 @@ export const Login: React.FC = () => {
         </div>
 
         {error && (
-          <div className="alert alert-critico" style={{ marginBottom: '1.25rem' }}>
-            {error}
+          <div className="alert alert-critico" style={{ marginBottom: '1.25rem', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <div style={{ fontWeight: 700 }}>{error}</div>
           </div>
         )}
 
