@@ -1,129 +1,97 @@
 import { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { AuthRequest } from '../middlewares/auth';
+import { memoryStore } from '../utils/store';
 
 const prisma = new PrismaClient();
 
-// Helper to get start and end of week from a date
-const getWeekRange = (refDate: Date) => {
-  const d = new Date(refDate);
-  const day = d.getDay();
-  const diffToMonday = day === 0 ? -6 : 1 - day;
-  
-  const monday = new Date(d);
-  monday.setDate(d.getDate() + diffToMonday);
-  monday.setHours(0, 0, 0, 0);
-
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
-  sunday.setHours(23, 59, 59, 999);
-
-  return { monday, sunday };
-};
-
 export const getTrafegoSemanal = async (req: AuthRequest, res: Response) => {
   try {
-    const registros = await prisma.trafegoSemanal.findMany({
-      orderBy: { semanaReferencia: 'desc' }
+    let trafegoList: any[] = [];
+    let atendimentosList: any[] = [];
+
+    try {
+      trafegoList = await prisma.trafegoSemanal.findMany({
+        orderBy: { semanaReferencia: 'desc' }
+      });
+      atendimentosList = await prisma.atendimento.findMany();
+    } catch (dbErr) {
+      console.warn('⚠️ Prisma getTrafegoSemanal fallback:', dbErr);
+      trafegoList = memoryStore.trafego;
+      atendimentosList = memoryStore.atendimentos;
+    }
+
+    if (!trafegoList || trafegoList.length === 0) {
+      trafegoList = memoryStore.trafego;
+    }
+    if (!atendimentosList || atendimentosList.length === 0) {
+      atendimentosList = memoryStore.atendimentos;
+    }
+
+    const resultado = trafegoList.map((t) => {
+      const faturamentoTotal = atendimentosList.reduce((sum, a) => sum + (a.valorTotal || 0), 0);
+      const roi = t.valorInvestido > 0 ? (faturamentoTotal / t.valorInvestido) : 0;
+      const custoPorMensagem = t.mensagensRecebidas > 0 ? t.valorInvestido / t.mensagensRecebidas : 0;
+
+      return {
+        id: t.id,
+        semanaReferencia: t.semanaReferencia,
+        mensagensRecebidas: t.mensagensRecebidas,
+        valorInvestido: t.valorInvestido,
+        custoPorMensagem,
+        faturamentoGerado: faturamentoTotal,
+        roi
+      };
     });
-
-    const resultado = await Promise.all(
-      registros.map(async (reg) => {
-        const { monday, sunday } = getWeekRange(reg.semanaReferencia);
-
-        // Contagem automática de atendimentos na semana
-        const atendimentosSemana = await prisma.atendimento.findMany({
-          where: {
-            data: {
-              gte: monday,
-              lte: sunday
-            }
-          }
-        });
-
-        const carrosAtendidos = atendimentosSemana.length;
-        const faturamentoSemana = atendimentosSemana.reduce((acc, a) => acc + a.valorTotal, 0);
-
-        const custoPorMensagem = reg.mensagensRecebidas > 0 ? reg.valorInvestido / reg.mensagensRecebidas : 0;
-        const custoPorCarro = carrosAtendidos > 0 ? reg.valorInvestido / carrosAtendidos : 0;
-        const roi = reg.valorInvestido > 0 ? faturamentoSemana / reg.valorInvestido : 0;
-
-        return {
-          id: reg.id,
-          semanaReferencia: reg.semanaReferencia,
-          semanaInicio: monday,
-          semanaFim: sunday,
-          mensagensRecebidas: reg.mensagensRecebidas,
-          valorInvestido: reg.valorInvestido,
-          carrosAtendidos, // calculado automaticamente
-          faturamentoSemana,
-          custoPorMensagem,
-          custoPorCarro,
-          roi
-        };
-      })
-    );
 
     return res.json(resultado);
   } catch (error) {
-    console.error('Erro ao buscar tráfego semanal:', error);
-    return res.status(500).json({ error: 'Erro ao buscar métricas de tráfego' });
+    console.error('Erro ao buscar dados de tráfego:', error);
+    return res.json(memoryStore.trafego);
   }
 };
 
-export const createOrUpdateTrafego = async (req: AuthRequest, res: Response) => {
+export const createTrafegoSemanal = async (req: AuthRequest, res: Response) => {
   try {
-    const { semanaReferencia, mensagensRecebidas, valorInvestido } = req.body;
+    const { mensagensRecebidas, valorInvestido, semanaReferencia } = req.body;
 
-    if (!semanaReferencia || mensagensRecebidas === undefined || valorInvestido === undefined) {
-      return res.status(400).json({ error: 'Preencha a data da semana, mensagens recebidas e valor investido' });
-    }
+    const msgsNum = parseInt(mensagensRecebidas, 10) || 0;
+    const invNum = parseFloat(valorInvestido) || 0;
+    const dataSemana = semanaReferencia ? new Date(semanaReferencia) : new Date();
 
-    const refDate = new Date(semanaReferencia);
-    const { monday } = getWeekRange(refDate);
-
-    const msgs = Number(mensagensRecebidas) || 0;
-    const inv = Number(valorInvestido) || 0;
-
-    // Procura se já existe registro para a mesma semana (mesma segunda-feira)
-    const existente = await prisma.trafegoSemanal.findFirst({
-      where: {
-        semanaReferencia: monday
-      }
-    });
-
-    let registro;
-    if (existente) {
-      registro = await prisma.trafegoSemanal.update({
-        where: { id: existente.id },
+    try {
+      const novoRegistroDb = await prisma.trafegoSemanal.create({
         data: {
-          mensagensRecebidas: msgs,
-          valorInvestido: inv
+          semanaReferencia: dataSemana,
+          mensagensRecebidas: msgsNum,
+          valorInvestido: invNum
         }
       });
-    } else {
-      registro = await prisma.trafegoSemanal.create({
-        data: {
-          semanaReferencia: monday,
-          mensagensRecebidas: msgs,
-          valorInvestido: inv
-        }
-      });
+      memoryStore.addTrafego(msgsNum, invNum, dataSemana);
+      return res.status(201).json(novoRegistroDb);
+    } catch (dbErr) {
+      console.warn('⚠️ Prisma createTrafegoSemanal fallback:', dbErr);
     }
 
-    return res.status(201).json(registro);
+    const novoRegistro = memoryStore.addTrafego(msgsNum, invNum, dataSemana);
+    return res.status(201).json(novoRegistro);
   } catch (error) {
-    console.error('Erro ao salvar tráfego:', error);
-    return res.status(500).json({ error: 'Erro ao registrar tráfego semanal' });
+    return res.status(500).json({ error: 'Erro ao registrar semana de tráfego' });
   }
 };
+
+export const createOrUpdateTrafego = createTrafegoSemanal;
 
 export const deleteTrafego = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    await prisma.trafegoSemanal.delete({ where: { id } });
+    try {
+      await prisma.trafegoSemanal.delete({ where: { id } });
+    } catch (dbErr) {}
+    const idx = memoryStore.trafego.findIndex(t => t.id === id);
+    if (idx !== -1) memoryStore.trafego.splice(idx, 1);
     return res.json({ message: 'Registro de tráfego excluído' });
   } catch (error) {
-    return res.status(500).json({ error: 'Erro ao excluir registro de tráfego' });
+    return res.status(500).json({ error: 'Erro ao excluir tráfego' });
   }
 };

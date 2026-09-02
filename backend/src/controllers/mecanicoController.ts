@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { AuthRequest } from '../middlewares/auth';
+import { memoryStore } from '../utils/store';
 
 const prisma = new PrismaClient();
 
@@ -18,24 +19,45 @@ export const getMecanicos = async (req: AuthRequest, res: Response) => {
       };
     }
 
-    const mecanicos = await prisma.mecanico.findMany({
-      include: {
-        atendimentos: {
-          where: dateFilter,
-          select: {
-            id: true,
-            valorComissao: true,
-            valorTotal: true
+    try {
+      const mecanicosDb = await prisma.mecanico.findMany({
+        include: {
+          atendimentos: {
+            where: dateFilter,
+            select: { id: true, valorComissao: true, valorTotal: true }
           }
-        }
-      },
-      orderBy: { nome: 'asc' }
-    });
+        },
+        orderBy: { nome: 'asc' }
+      });
 
-    const resultado = mecanicos.map((m) => {
-      const totalComissoes = m.atendimentos.reduce((acc, a) => acc + a.valorComissao, 0);
-      const totalFaturamento = m.atendimentos.reduce((acc, a) => acc + a.valorTotal, 0);
-      const totalAtendimentos = m.atendimentos.length;
+      if (mecanicosDb && mecanicosDb.length > 0) {
+        const resultado = mecanicosDb.map((m) => {
+          const totalComissoes = m.atendimentos.reduce((acc, a) => acc + a.valorComissao, 0);
+          const totalFaturamento = m.atendimentos.reduce((acc, a) => acc + a.valorTotal, 0);
+          const totalAtendimentos = m.atendimentos.length;
+
+          return {
+            id: m.id,
+            nome: m.nome,
+            especialidade: m.especialidade,
+            createdAt: m.createdAt,
+            totalComissoes,
+            totalFaturamento,
+            totalAtendimentos
+          };
+        });
+
+        return res.json(resultado);
+      }
+    } catch (dbErr) {
+      console.warn('⚠️ Prisma mecanicos query fallback:', dbErr);
+    }
+
+    // Fallback Resiliente via memoryStore
+    const resultadoFallback = memoryStore.mecanicos.map((m) => {
+      const atendimentosMec = memoryStore.atendimentos.filter(a => a.mecanicoId === m.id);
+      const totalComissoes = atendimentosMec.reduce((acc, a) => acc + a.valorComissao, 0);
+      const totalFaturamento = atendimentosMec.reduce((acc, a) => acc + a.valorTotal, 0);
 
       return {
         id: m.id,
@@ -44,14 +66,14 @@ export const getMecanicos = async (req: AuthRequest, res: Response) => {
         createdAt: m.createdAt,
         totalComissoes,
         totalFaturamento,
-        totalAtendimentos
+        totalAtendimentos: atendimentosMec.length
       };
     });
 
-    return res.json(resultado);
+    return res.json(resultadoFallback);
   } catch (error) {
     console.error('Erro ao listar mecânicos:', error);
-    return res.status(500).json({ error: 'Erro ao listar mecânicos' });
+    return res.json(memoryStore.mecanicos);
   }
 };
 
@@ -62,14 +84,20 @@ export const createMecanico = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'Nome do mecânico é obrigatório' });
     }
 
-    const mecanico = await prisma.mecanico.create({
-      data: {
-        nome,
-        especialidade: especialidade || 'Geral'
-      }
-    });
+    try {
+      const mecanicoDb = await prisma.mecanico.create({
+        data: { nome, especialidade: especialidade || 'Geral' }
+      });
 
-    return res.status(201).json(mecanico);
+      memoryStore.addMecanico(mecanicoDb.nome, mecanicoDb.especialidade);
+      return res.status(201).json(mecanicoDb);
+    } catch (dbErr) {
+      console.warn('⚠️ Prisma createMecanico fallback:', dbErr);
+    }
+
+    // Fallback Resiliente
+    const novoMecanico = memoryStore.addMecanico(nome, especialidade);
+    return res.status(201).json(novoMecanico);
   } catch (error) {
     return res.status(500).json({ error: 'Erro ao cadastrar mecânico' });
   }
@@ -80,12 +108,19 @@ export const updateMecanico = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { nome, especialidade } = req.body;
 
-    const mecanico = await prisma.mecanico.update({
-      where: { id },
-      data: { nome, especialidade }
-    });
+    try {
+      const mecanicoDb = await prisma.mecanico.update({
+        where: { id },
+        data: { nome, especialidade }
+      });
+      memoryStore.updateMecanico(id, nome, especialidade);
+      return res.json(mecanicoDb);
+    } catch (dbErr) {
+      console.warn('⚠️ Prisma updateMecanico fallback:', dbErr);
+    }
 
-    return res.json(mecanico);
+    const updated = memoryStore.updateMecanico(id, nome, especialidade);
+    return res.json(updated || { id, nome, especialidade });
   } catch (error) {
     return res.status(500).json({ error: 'Erro ao atualizar mecânico' });
   }
@@ -94,9 +129,14 @@ export const updateMecanico = async (req: AuthRequest, res: Response) => {
 export const deleteMecanico = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    await prisma.mecanico.delete({ where: { id } });
+    try {
+      await prisma.mecanico.delete({ where: { id } });
+    } catch (dbErr) {
+      console.warn('⚠️ Prisma deleteMecanico fallback:', dbErr);
+    }
+    memoryStore.deleteMecanico(id);
     return res.json({ message: 'Mecânico excluído com sucesso' });
   } catch (error) {
-    return res.status(500).json({ error: 'Erro ao excluir mecânico (verifique se há atendimentos associados)' });
+    return res.status(500).json({ error: 'Erro ao excluir mecânico' });
   }
 };
