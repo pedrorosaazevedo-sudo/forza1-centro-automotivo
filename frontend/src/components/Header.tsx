@@ -10,11 +10,13 @@ export const Header: React.FC = () => {
     <header className="header">
       <div className="main-content" style={{ padding: '0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-          <img 
-            src="/logo.png?v=99" 
-            alt="Forza 1 Centro Automotivo Logo Oficial" 
-            style={{ height: '62px', width: 'auto', objectFit: 'contain' }} 
-          />
+          <div style={{ background: '#0a0a0a', padding: '4px 10px', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
+            <img 
+              src="/logo.png?v=101" 
+              alt="Forza 1 Centro Automotivo Logo Oficial" 
+              style={{ height: '54px', width: 'auto', objectFit: 'contain' }} 
+            />
+          </div>
         </Link>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
