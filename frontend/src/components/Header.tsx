@@ -12,7 +12,7 @@ export const Header: React.FC = () => {
         <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
           <img 
             src="/logo.png?v=99" 
-            alt="Lemoka Centro Automotivo Logo Oficial" 
+            alt="Forza 1 Centro Automotivo Logo Oficial" 
             style={{ height: '62px', width: 'auto', objectFit: 'contain' }} 
           />
         </Link>

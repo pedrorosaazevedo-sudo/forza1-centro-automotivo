@@ -96,7 +96,7 @@ export const Despesas: React.FC = () => {
       </div>
 
       {/* Card de Resumo de Custos Fixos */}
-      <div className="card card-gold" style={{ marginBottom: '1.5rem', background: 'linear-gradient(135deg, #1a1d27 0%, #252938 100%)' }}>
+      <div className="card card-gold" style={{ marginBottom: '1.5rem', background: 'linear-gradient(135deg, #e10600 0%, #c10500 100%)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>

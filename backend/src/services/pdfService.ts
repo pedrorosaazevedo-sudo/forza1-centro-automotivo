@@ -30,9 +30,9 @@ export const generateReceiptPDF = (atendimento: AtendimentoComMecanico): Promise
     }
 
     if (!hasLogo) {
-      doc.fillColor('#f5a623').fontSize(22).font('Helvetica-Bold').text('LEMOKA', 40, 30);
+      doc.fillColor('#e10600').fontSize(22).font('Helvetica-Bold').text('FORZA 1', 40, 30);
       doc.fillColor('#ffffff').fontSize(14).font('Helvetica').text('CENTRO AUTOMOTIVO', 40, 56);
-      doc.fillColor('#94a3b8').fontSize(9).text('CNPJ: 37.912.027/0001-60 | Nova Iguaçu - RJ', 40, 76);
+      doc.fillColor('#94a3b8').fontSize(9).text('Pavuna - Rio de Janeiro, RJ', 40, 76);
     }
 
     // Receipt Number & Date (Formatted cleanly on the right)
@@ -44,7 +44,7 @@ export const generateReceiptPDF = (atendimento: AtendimentoComMecanico): Promise
       minute: '2-digit'
     });
 
-    doc.fillColor('#f5a623').fontSize(11).font('Helvetica-Bold').text(`ORDEM DE SERVIÇO / COMPROVANTE INTERNO #${atendimento.id.slice(0, 8).toUpperCase()}`, 260, 32, { align: 'right' });
+    doc.fillColor('#e10600').fontSize(11).font('Helvetica-Bold').text(`ORDEM DE SERVIÇO / COMPROVANTE INTERNO #${atendimento.id.slice(0, 8).toUpperCase()}`, 260, 32, { align: 'right' });
     doc.fillColor('#cbd5e1').fontSize(9).font('Helvetica').text(`Data: ${formattedDate}`, 260, 50, { align: 'right' });
     doc.fillColor('#cbd5e1').fontSize(9).text(`Forma de Pagamento: ${atendimento.formaPagamento}`, 260, 65, { align: 'right' });
     doc.fillColor('#94a3b8').fontSize(8).text(`(Este documento é um comprovante de serviço interno, não substitui NFS-e)`, 260, 82, { align: 'right' });
@@ -54,7 +54,7 @@ export const generateReceiptPDF = (atendimento: AtendimentoComMecanico): Promise
     // Section 1: Dados do Cliente e Veículo
     let y = 145;
     doc.fillColor('#0f1117').fontSize(12).font('Helvetica-Bold').text('DADOS DO CLIENTE E VEÍCULO', 40, y);
-    doc.strokeColor('#f5a623').lineWidth(1.5).moveTo(40, y + 16).lineTo(555, y + 16).stroke();
+    doc.strokeColor('#e10600').lineWidth(1.5).moveTo(40, y + 16).lineTo(555, y + 16).stroke();
 
     y += 26;
     doc.fillColor('#1e293b').fontSize(10).font('Helvetica-Bold').text('Cliente:', 40, y);
@@ -80,7 +80,7 @@ export const generateReceiptPDF = (atendimento: AtendimentoComMecanico): Promise
     // Section 2: Descrição dos Serviços
     y += 35;
     doc.fillColor('#0f1117').fontSize(12).font('Helvetica-Bold').text('DETALHAMENTO DO SERVIÇO', 40, y);
-    doc.strokeColor('#f5a623').lineWidth(1.5).moveTo(40, y + 16).lineTo(555, y + 16).stroke();
+    doc.strokeColor('#e10600').lineWidth(1.5).moveTo(40, y + 16).lineTo(555, y + 16).stroke();
 
     y += 26;
     // Box for description
@@ -90,7 +90,7 @@ export const generateReceiptPDF = (atendimento: AtendimentoComMecanico): Promise
     // Section 3: Valores
     y += 100;
     doc.fillColor('#0f1117').fontSize(12).font('Helvetica-Bold').text('RESUMO FINANCEIRO', 40, y);
-    doc.strokeColor('#f5a623').lineWidth(1.5).moveTo(40, y + 16).lineTo(555, y + 16).stroke();
+    doc.strokeColor('#e10600').lineWidth(1.5).moveTo(40, y + 16).lineTo(555, y + 16).stroke();
 
     y += 26;
     const formatCurrency = (val: number) => `R$ ${val.toFixed(2).replace('.', ',')}`;
@@ -105,15 +105,15 @@ export const generateReceiptPDF = (atendimento: AtendimentoComMecanico): Promise
     y += 25;
     // Total Box
     doc.roundedRect(40, y, 515, 36, 6).fill('#0f1117');
-    doc.fillColor('#f5a623').fontSize(12).font('Helvetica-Bold').text('VALOR TOTAL:', 55, y + 10);
+    doc.fillColor('#e10600').fontSize(12).font('Helvetica-Bold').text('VALOR TOTAL:', 55, y + 10);
     doc.fillColor('#ffffff').fontSize(14).font('Helvetica-Bold').text(formatCurrency(atendimento.valorTotal), 440, y + 9, { align: 'right' });
 
     // Footer
     y += 110;
     doc.strokeColor('#cbd5e1').lineWidth(0.5).moveTo(40, y).lineTo(555, y).stroke();
     y += 10;
-    doc.fillColor('#64748b').fontSize(9).font('Helvetica').text('Lemoka Centro Automotivo LTDA - CNPJ: 37.912.027/0001-60 - Com Deus Tudo é Possível', 40, y, { align: 'center' });
-    doc.fillColor('#94a3b8').fontSize(8).text('Av. Abilio Augusto Távora, 4505 - Valverde, Nova Iguaçu - RJ, CEP 26290-600', 40, y + 14, { align: 'center' });
+    doc.fillColor('#64748b').fontSize(9).font('Helvetica').text('Forza 1 Centro Automotivo — Qualidade e Velocidade em Cada Serviço', 40, y, { align: 'center' });
+    doc.fillColor('#94a3b8').fontSize(8).text('Av. Prof. Bernardino Rocha, 92 - Pavuna, Rio de Janeiro - RJ, 21650-450 | (21) 96484-3565', 40, y + 14, { align: 'center' });
 
     doc.end();
   });

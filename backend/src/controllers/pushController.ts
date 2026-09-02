@@ -25,11 +25,11 @@ export const triggerScheduledReminder = async (req: Request, res: Response) => {
   try {
     const { tipo } = req.body; // 'manha' (08:30), 'tarde' (12:30), 'fechamento' (17:30)
 
-    let title = 'Lemoka Centro Automotivo';
+    let title = 'Forza 1 Centro Automotivo';
     let body = 'Lembrete do sistema operacional.';
 
     if (tipo === 'manha') {
-      title = '☀️ Bom dia! Lemoka Oficina';
+      title = '☀️ Bom dia! Equipe Forza 1';
       body = 'Hora de cadastrar o primeiro atendimento do dia no sistema!';
     } else if (tipo === 'tarde') {
       title = '🔧 Atualização da Tarde';

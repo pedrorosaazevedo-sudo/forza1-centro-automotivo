@@ -20,12 +20,12 @@ app.use('/api', routes);
 // Root healthcheck
 app.get('/', (req, res) => {
   res.json({
-    app: 'Lemoka Centro Automotivo API',
+    app: 'Forza 1 Centro Automotivo API',
     status: 'online',
     version: '1.0.0'
   });
 });
 
 app.listen(config.port, () => {
-  console.log(`⚡ API Lemoka Centro Automotivo rodando na porta ${config.port}`);
+  console.log(`⚡ API Forza 1 Centro Automotivo rodando na porta ${config.port}`);
 });

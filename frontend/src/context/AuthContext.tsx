@@ -17,7 +17,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('@lemoka:token');
+    const token = localStorage.getItem('@forza1:token');
     if (token) {
       api.get('/auth/me')
         .then((res) => {
@@ -36,12 +36,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const response = await api.post('/auth/login', { email, senha });
     const { token, usuario: user } = response.data;
 
-    localStorage.setItem('@lemoka:token', token);
+    localStorage.setItem('@forza1:token', token);
     setUsuario(user);
   };
 
   const logout = () => {
-    localStorage.removeItem('@lemoka:token');
+    localStorage.removeItem('@forza1:token');
     setUsuario(null);
   };
 

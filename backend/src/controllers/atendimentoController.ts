@@ -248,7 +248,7 @@ export const downloadPDF = async (req: AuthRequest, res: Response) => {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
       'Content-Disposition',
-      `attachment; filename=Comprovante_Lemoka_${atendimento.nomeCliente.replace(/\s+/g, '_')}_${atendimento.id.slice(0, 6)}.pdf`
+      `attachment; filename=Nota_Forza1_${atendimento.nomeCliente.replace(/\s+/g, '_')}_${atendimento.id.slice(0, 6)}.pdf`
     );
 
     return res.send(pdfBuffer);

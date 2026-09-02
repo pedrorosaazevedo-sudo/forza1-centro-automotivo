@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 // Setup VAPID details if available
 try {
   webpush.setVapidDetails(
-    'mailto:contato@lemokacentroautomotivo.com.br',
+    'mailto:contato@forza1.com.br',
     config.vapidKeys.publicKey,
     config.vapidKeys.privateKey
   );

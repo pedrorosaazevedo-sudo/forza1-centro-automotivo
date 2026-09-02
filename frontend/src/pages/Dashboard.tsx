@@ -89,7 +89,7 @@ export const Dashboard: React.FC = () => {
   if (loading || !data) {
     return (
       <div style={{ textAlign: 'center', padding: '3rem 0', color: 'var(--text-secondary)' }}>
-        Carregando indicadores do Lemoka...
+        Carregando indicadores do Forza 1...
       </div>
     );
   }
@@ -101,8 +101,8 @@ export const Dashboard: React.FC = () => {
       {
         label: 'Faturamento (R$)',
         data: data.graficoEvolucao.map((item) => item.faturamento),
-        borderColor: '#f5a623',
-        backgroundColor: 'rgba(245, 166, 35, 0.1)',
+        borderColor: '#e10600',
+        backgroundColor: 'rgba(225, 6, 0, 0.1)',
         tension: 0.3,
         yAxisID: 'y'
       },
@@ -151,7 +151,7 @@ export const Dashboard: React.FC = () => {
     datasets: [
       {
         data: data.graficoFormasPagamento.map((item) => item.valor),
-        backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f5a623'],
+        backgroundColor: ['#e10600', '#ff4d4d', '#cc0500', '#ff3333'],
         borderColor: '#1a1d27',
         borderWidth: 2
       }
@@ -314,7 +314,7 @@ export const Dashboard: React.FC = () => {
 
           <div className="card">
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '1rem', color: 'var(--gold)' }}>
-              Resumo Operacional Lemoka
+              Resumo Operacional Forza 1
             </h3>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.875rem' }}>
               <li style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>

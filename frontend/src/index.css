@@ -4,11 +4,11 @@
   --bg-card-hover: #222634;
   --bg-input: #12141d;
   --border-color: #2e3346;
-  --border-gold: #f5a62340;
+  --border-gold: rgba(225,6,0,0.3);
   
-  --gold: #f5a623;
-  --gold-hover: #e09619;
-  --gold-glow: rgba(245, 166, 35, 0.25);
+  --gold: #e10600;
+  --gold-hover: #c10500;
+  --gold-glow: rgba(225,6,0,0.15);
   
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
@@ -130,7 +130,7 @@ a:hover {
 .logo-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #f5a623 0%, #b8730e 100%);
+  background: linear-gradient(135deg, #e10600 0%, #c10500 100%);
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
@@ -255,13 +255,13 @@ a:hover {
 }
 
 .btn-gold {
-  background: linear-gradient(135deg, #f5a623 0%, #d48806 100%);
+  background: linear-gradient(135deg, #e10600 0%, #c10500 100%);
   color: #0f1117;
   box-shadow: var(--shadow-gold);
 }
 
 .btn-gold:hover {
-  background: linear-gradient(135deg, #ffb338 0%, #e09619 100%);
+  background: linear-gradient(135deg, #ff3333 0%, #e10600 100%);
   transform: translateY(-1px);
 }
 

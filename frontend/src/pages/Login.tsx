@@ -41,11 +41,18 @@ export const Login: React.FC = () => {
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
           <img 
             src="/logo.png?v=99" 
-            alt="Lemoka Centro Automotivo Logo Oficial" 
+            alt="Forza 1 Centro Automotivo Logo Oficial" 
             style={{ width: '100%', maxWidth: '290px', height: 'auto', margin: '0 auto', display: 'block', objectFit: 'contain' }}
           />
+          <h2 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', marginTop: '1rem', fontWeight: 700 }}>Forza 1 Centro Automotivo</h2>
+          <p style={{ fontSize: '0.9rem', color: 'var(--gold)', marginTop: '0.2rem', fontWeight: 600 }}>
+            Qualidade e Velocidade em Cada Serviço
+          </p>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.6rem' }}>
-            Nova Iguaçu - RJ • Gestão Completa
+            Pavuna, Rio de Janeiro - RJ • Gestão Completa
+          </p>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+            Contato: (21) 96484-3565
           </p>
         </div>
 
@@ -62,7 +69,7 @@ export const Login: React.FC = () => {
               <input
                 type="email"
                 className="form-input"
-                placeholder="seu-email@lemoka.com.br"
+                placeholder="seu-email@forza1.com.br"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -84,6 +91,23 @@ export const Login: React.FC = () => {
                 autoComplete="current-password"
               />
             </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', justifyContent: 'center' }}>
+            <button 
+              type="button" 
+              className="btn btn-secondary btn-sm"
+              onClick={() => { setEmail('operacional@forza1.com.br'); setSenha('forza123'); }}
+            >
+              Demo Op.
+            </button>
+            <button 
+              type="button" 
+              className="btn btn-secondary btn-sm"
+              onClick={() => { setEmail('admin@forza1.com.br'); setSenha('admin123'); }}
+            >
+              Demo Admin
+            </button>
           </div>
 
           <button 
