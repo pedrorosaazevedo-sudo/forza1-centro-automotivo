@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { StatCard } from '../components/StatCard';
+import { DateRangePicker } from '../components/DateRangePicker';
 import { DashboardData } from '../types';
 import { api } from '../services/api';
+import {
+  DATE_PRESETS,
+  formatYMD,
+  formatDisplayBR
+} from '../utils/dateUtils';
 import {
   DollarSign,
   Users,
@@ -11,7 +17,6 @@ import {
   AlertTriangle,
   CheckCircle,
   Info,
-  Calendar,
   PieChart as PieIcon,
   BarChart3,
   FileCheck,
@@ -45,14 +50,20 @@ ChartJS.register(
 );
 
 export const Dashboard: React.FC = () => {
-  const [periodo, setPeriodo] = useState<'dia' | 'semana' | 'mes'>('mes');
+  // Padrão inicial: Este Mês
+  const defaultRange = DATE_PRESETS.find((p) => p.id === 'este_mes')!.getRange();
+
+  const [startDate, setStartDate] = useState<string>(() => formatYMD(defaultRange.start));
+  const [endDate, setEndDate] = useState<string>(() => formatYMD(defaultRange.end));
+  const [periodoLabel, setPeriodoLabel] = useState<string>('Este mês');
+
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const loadDashboard = async (p: 'dia' | 'semana' | 'mes') => {
+  const loadDashboard = async (start: string, end: string) => {
     setLoading(true);
     try {
-      const res = await api.get(`/dashboard?periodo=${p}`);
+      const res = await api.get(`/dashboard?dataInicio=${start}&dataFim=${end}`);
       setData(res.data);
     } catch (err) {
       console.error('Erro ao carregar dashboard:', err);
@@ -62,8 +73,15 @@ export const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    loadDashboard(periodo);
-  }, [periodo]);
+    loadDashboard(startDate, endDate);
+  }, []);
+
+  const handleApplyDateRange = (newStart: string, newEnd: string, label: string) => {
+    setStartDate(newStart);
+    setEndDate(newEnd);
+    setPeriodoLabel(label);
+    loadDashboard(newStart, newEnd);
+  };
 
   const formatCurrency = (val: number) =>
     `R$ ${val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -156,27 +174,21 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div>
-      {/* Top Controls: Period Filter */}
+      {/* Seletor de Período Estilo Meta Ads */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Visão Geral da Oficina</h2>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-            Período: {new Date(data.datas.inicio).toLocaleDateString('pt-BR')} até {new Date(data.datas.fim).toLocaleDateString('pt-BR')}
+            Exibindo dados de {formatDisplayBR(startDate)} até {formatDisplayBR(endDate)}
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.35rem', background: 'var(--bg-card)', padding: '0.3rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-          {(['dia', 'semana', 'mes'] as const).map((p) => (
-            <button
-              key={p}
-              className={`btn btn-sm ${periodo === p ? 'btn-gold' : 'btn-secondary'}`}
-              style={{ textTransform: 'capitalize' }}
-              onClick={() => setPeriodo(p)}
-            >
-              <Calendar size={14} /> {p === 'mes' ? 'Mês' : p}
-            </button>
-          ))}
-        </div>
+        {/* Componente Seletor de Datas Meta Ads */}
+        <DateRangePicker
+          startDate={startDate}
+          endDate={endDate}
+          onApply={handleApplyDateRange}
+        />
       </div>
 
       {/* Margem Alert Box */}
@@ -229,7 +241,7 @@ export const Dashboard: React.FC = () => {
         />
       </div>
 
-      {/* FASE 7: Indicadores Fiscais Integrados */}
+      {/* Indicadores Fiscais Integrados */}
       <div className="card" style={{ marginBottom: '1.5rem', border: '1px solid var(--border-color)' }}>
         <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--gold)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <FileCheck size={18} /> Indicadores Fiscais (NFS-e Nacional — Em Preparação)
@@ -278,7 +290,7 @@ export const Dashboard: React.FC = () => {
             <Line data={lineChartData} options={lineChartOptions} height={90} />
           ) : (
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>
-              Nenhum dado registrado para o gráfico no período.
+              Nenhum dado registrado para o gráfico no período selecionado.
             </p>
           )}
         </div>
@@ -295,7 +307,7 @@ export const Dashboard: React.FC = () => {
               </div>
             ) : (
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>
-                Sem faturamento no período.
+                Sem faturamento no período selecionado.
               </p>
             )}
           </div>
