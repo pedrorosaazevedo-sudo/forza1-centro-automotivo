@@ -10,13 +10,14 @@ import { Mecanicos } from './pages/Mecanicos';
 import { Despesas } from './pages/Despesas';
 import { Trafego } from './pages/Trafego';
 import { PushConfig } from './pages/PushConfig';
+import { Configuracoes } from './pages/Configuracoes';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { usuario, loading } = useAuth();
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f1117', color: '#94a3b8' }}>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-main)', color: 'var(--text-secondary)' }}>
         Carregando Lemoka Centro Automotivo...
       </div>
     );
@@ -51,6 +52,7 @@ export const App: React.FC = () => {
             <Route path="despesas" element={<Despesas />} />
             <Route path="trafego" element={<Trafego />} />
             <Route path="push" element={<PushConfig />} />
+            <Route path="configuracoes" element={<Configuracoes />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

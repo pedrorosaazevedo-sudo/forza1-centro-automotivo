@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Atendimento, Mecanico, FormaPagamento } from '../types';
 import { api } from '../services/api';
 import { Modal } from '../components/Modal';
-import { Search, Download, Edit2, Trash2, Calendar, FileText } from 'lucide-react';
+import { Search, Download, Edit2, Trash2, Calendar, FileText, FileCheck } from 'lucide-react';
 
 export const Historico: React.FC = () => {
   const [atendimentos, setAtendimentos] = useState<Atendimento[]>([]);
@@ -13,6 +13,7 @@ export const Historico: React.FC = () => {
   const [busca, setBusca] = useState('');
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
+  const [statusFiscalFiltro, setStatusFiscalFiltro] = useState('');
 
   // Estado para Edição Retroativa
   const [editingAtendimento, setEditingAtendimento] = useState<Atendimento | null>(null);
@@ -25,6 +26,7 @@ export const Historico: React.FC = () => {
       if (busca) params.append('busca', busca);
       if (dataInicio) params.append('dataInicio', dataInicio);
       if (dataFim) params.append('dataFim', dataFim);
+      if (statusFiscalFiltro) params.append('statusFiscal', statusFiscalFiltro);
 
       const [resAtend, resMec] = await Promise.all([
         api.get(`/atendimentos?${params.toString()}`),
@@ -42,7 +44,7 @@ export const Historico: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [busca, dataInicio, dataFim]);
+  }, [busca, dataInicio, dataFim, statusFiscalFiltro]);
 
   const handleDownloadPDF = async (id: string, nomeCliente?: string) => {
     try {
@@ -53,14 +55,14 @@ export const Historico: React.FC = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Nota_Lemoka_${(nomeCliente || 'Atendimento').replace(/\s+/g, '_')}.pdf`;
+      a.download = `Comprovante_Lemoka_${(nomeCliente || 'Atendimento').replace(/\s+/g, '_')}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Erro ao baixar PDF:', err);
-      alert('Erro ao gerar o PDF da nota.');
+      alert('Erro ao gerar o PDF da ordem de serviço.');
     }
   };
 
@@ -76,7 +78,9 @@ export const Historico: React.FC = () => {
       valorServico: at.valorServico,
       percentualComissao: at.percentualComissao,
       formaPagamento: at.formaPagamento,
-      data: new Date(at.data).toISOString().slice(0, 10)
+      data: new Date(at.data).toISOString().slice(0, 10),
+      clienteDocumento: at.clienteDocumento || '',
+      clienteEmail: at.clienteEmail || ''
     });
   };
 
@@ -114,25 +118,32 @@ export const Historico: React.FC = () => {
     return 'badge-dinheiro';
   };
 
+  const getFiscalBadgeStyle = (status?: string) => {
+    if (status === 'Emitida') return { background: 'rgba(5, 150, 105, 0.12)', color: 'var(--green)', border: '1px solid rgba(5, 150, 105, 0.3)' };
+    if (status === 'Pronta para emissão') return { background: 'rgba(37, 99, 235, 0.12)', color: 'var(--blue)', border: '1px solid rgba(37, 99, 235, 0.3)' };
+    if (status === 'Erro na emissão') return { background: 'rgba(220, 38, 38, 0.12)', color: 'var(--red)', border: '1px solid rgba(220, 38, 38, 0.3)' };
+    return { background: 'var(--bg-main)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)' };
+  };
+
   return (
     <div>
       <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Histórico de Atendimentos</h2>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-            Consulte, baixe notas em PDF e realize edições retroativas.
+            Consulte, baixe comprovantes em PDF, controle o status fiscal e realize edições.
           </p>
         </div>
       </div>
 
       {/* Painel de Filtros */}
       <div className="card" style={{ marginBottom: '1.5rem', padding: '1rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', alignItems: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', alignItems: 'center' }}>
           <div style={{ position: 'relative' }}>
             <input
               type="text"
               className="form-input"
-              placeholder="Buscar cliente, veículo, serviço..."
+              placeholder="Buscar cliente, veículo, CPF/CNPJ..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               style={{ paddingLeft: '2.2rem' }}
@@ -156,9 +167,23 @@ export const Historico: React.FC = () => {
             />
           </div>
 
-          {(busca || dataInicio || dataFim) && (
+          <div>
+            <select
+              className="form-select"
+              value={statusFiscalFiltro}
+              onChange={(e) => setStatusFiscalFiltro(e.target.value)}
+            >
+              <option value="">Todos os Status Fiscais</option>
+              <option value="Pendente de configuração">Pendente de configuração</option>
+              <option value="Não emitida">Não emitida</option>
+              <option value="Emitida">Emitida</option>
+              <option value="Erro na emissão">Erro na emissão</option>
+            </select>
+          </div>
+
+          {(busca || dataInicio || dataFim || statusFiscalFiltro) && (
             <button
-              onClick={() => { setBusca(''); setDataInicio(''); setDataFim(''); }}
+              onClick={() => { setBusca(''); setDataInicio(''); setDataFim(''); setStatusFiscalFiltro(''); }}
               className="btn btn-secondary btn-sm"
               style={{ height: '38px' }}
             >
@@ -187,7 +212,7 @@ export const Historico: React.FC = () => {
                 <th>Serviço</th>
                 <th>Valor Total</th>
                 <th>Comissão</th>
-                <th>Pagamento</th>
+                <th>Status Fiscal</th>
                 <th style={{ textAlign: 'right' }}>Ações</th>
               </tr>
             </thead>
@@ -200,14 +225,14 @@ export const Historico: React.FC = () => {
                   <td>
                     <strong style={{ color: 'var(--text-primary)', display: 'block' }}>{at.nomeCliente}</strong>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                      {at.veiculo || 'Veículo não inf.'} {at.telefoneCliente ? `• ${at.telefoneCliente}` : ''}
+                      {at.veiculo || 'Veículo não inf.'} {at.clienteDocumento ? `• CPF/CNPJ: ${at.clienteDocumento}` : ''}
                     </span>
                   </td>
                   <td style={{ whiteSpace: 'nowrap' }}>
                     <span style={{ fontSize: '0.85rem' }}>{at.mecanico?.nome || '-'}</span>
                   </td>
                   <td>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: '240px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {at.descricaoServico}
                     </p>
                   </td>
@@ -218,8 +243,8 @@ export const Historico: React.FC = () => {
                     {formatCurrency(at.valorComissao)} ({at.percentualComissao}%)
                   </td>
                   <td>
-                    <span className={`badge ${getFormaBadgeClass(at.formaPagamento)}`}>
-                      {at.formaPagamento}
+                    <span className="badge" style={getFiscalBadgeStyle(at.statusFiscal)}>
+                      {at.statusFiscal || 'Pendente de configuração'}
                     </span>
                   </td>
                   <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
@@ -227,7 +252,7 @@ export const Historico: React.FC = () => {
                       <button
                         onClick={() => handleDownloadPDF(at.id, at.nomeCliente)}
                         className="btn btn-secondary btn-sm"
-                        title="Baixar Nota PDF"
+                        title="Baixar Comprovante Interno PDF"
                       >
                         <Download size={14} color="var(--gold)" />
                       </button>
@@ -299,6 +324,27 @@ export const Historico: React.FC = () => {
                 className="form-input"
                 value={editForm.veiculo || ''}
                 onChange={(e) => setEditForm({ ...editForm, veiculo: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div className="form-group">
+              <label className="form-label">CPF ou CNPJ</label>
+              <input
+                type="text"
+                className="form-input"
+                value={editForm.clienteDocumento || ''}
+                onChange={(e) => setEditForm({ ...editForm, clienteDocumento: e.target.value })}
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">E-mail do Cliente</label>
+              <input
+                type="email"
+                className="form-input"
+                value={editForm.clienteEmail || ''}
+                onChange={(e) => setEditForm({ ...editForm, clienteEmail: e.target.value })}
               />
             </div>
           </div>

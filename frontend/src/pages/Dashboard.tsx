@@ -13,7 +13,10 @@ import {
   Info,
   Calendar,
   PieChart as PieIcon,
-  BarChart3
+  BarChart3,
+  FileCheck,
+  Clock,
+  AlertCircle
 } from 'lucide-react';
 import {
   Chart as ChartJS,
@@ -224,6 +227,44 @@ export const Dashboard: React.FC = () => {
           subtext="Faturamento / Carro"
           icon={<Percent size={20} color="var(--gold)" />}
         />
+      </div>
+
+      {/* FASE 7: Indicadores Fiscais Integrados */}
+      <div className="card" style={{ marginBottom: '1.5rem', border: '1px solid var(--border-color)' }}>
+        <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--gold)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <FileCheck size={18} /> Indicadores Fiscais (NFS-e Nacional — Em Preparação)
+        </h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          <div style={{ background: 'var(--bg-main)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>NFS-e EMITIDAS OFICIAIS</div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--green)' }}>
+                {data.indicadoresFiscais?.nfseEmitidas || 0}
+              </div>
+            </div>
+            <CheckCircle size={20} color="var(--green)" />
+          </div>
+
+          <div style={{ background: 'var(--bg-main)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>PENDENTES DE CONFIGURAÇÃO</div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--gold)' }}>
+                {data.indicadoresFiscais?.nfsePendentes ?? data.kpis.carrosAtendidos}
+              </div>
+            </div>
+            <Clock size={20} color="var(--gold)" />
+          </div>
+
+          <div style={{ background: 'var(--bg-main)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ERRO DE EMISSÃO</div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-muted)' }}>
+                {data.indicadoresFiscais?.nfseErro || 0}
+              </div>
+            </div>
+            <AlertCircle size={20} color="var(--text-muted)" />
+          </div>
+        </div>
       </div>
 
       {/* Charts Row */}

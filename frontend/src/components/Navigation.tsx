@@ -1,8 +1,11 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, PlusCircle, History, Users, DollarSign, TrendingUp, Bell } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, History, Users, DollarSign, TrendingUp, Settings } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export const Navigation: React.FC = () => {
+  const { isAdmin } = useAuth();
+
   const navItems = [
     { to: '/', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/novo', label: 'Novo', icon: PlusCircle },
@@ -11,6 +14,10 @@ export const Navigation: React.FC = () => {
     { to: '/despesas', label: 'Despesas', icon: DollarSign },
     { to: '/trafego', label: 'Tráfego', icon: TrendingUp },
   ];
+
+  if (isAdmin) {
+    navItems.push({ to: '/configuracoes', label: 'Configurações', icon: Settings });
+  }
 
   return (
     <>

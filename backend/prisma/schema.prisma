@@ -53,10 +53,83 @@ model Atendimento {
   percentualComissao Float    @default(0)
   valorComissao      Float
   formaPagamento     String   // PIX | CREDITO | DEBITO | DINHEIRO
+
+  // FASE 3: Dados Opcionais do Tomador / Cliente
+  clienteDocumento   String?  // CPF ou CNPJ
+  clienteEmail       String?
+  clienteCep         String?
+  clienteEndereco    String?
+  clienteNumero      String?
+  clienteComplemento String?
+  clienteBairro      String?
+  clienteCidade      String?
+  clienteUf          String?
+
+  // FASE 4: Estrutura para NFS-e Nacional (Pendente de Integração/Contador)
+  statusFiscal       String   @default("Pendente de configuração") // Não emitida | Pendente de configuração | Em preparação | Pronta para emissão | Em processamento | Emitida | Erro na emissão
+  numeroNfse         String?
+  chaveNfse          String?
+  dataEmissaoNfse    DateTime?
+  protocoloNfse      String?
+  codigoServico      String?
+  codigoTributacao   String?
+  valorTributavel    Float?
+  impostosRetidos    Float?
+  xmlNfse            String?
+  pdfNfseUrl         String?
+  mensagemErroFiscal String?
+  respostaApiFiscal  String?
+
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
   @@map("atendimentos")
+}
+
+model EmpresaConfig {
+  id                          String   @id @default(uuid())
+  razaoSocial                 String   @default("Lemoka Centro Automotivo LTDA")
+  nomeFantasia                String   @default("Lemoka")
+  cnpj                        String   @default("37.912.027/0001-60")
+  inscricaoMunicipal          String?
+  inscricaoEstadual           String?
+  cep                         String   @default("26290-600")
+  endereco                    String   @default("Av. Abilio Augusto Távora")
+  numero                      String   @default("4505")
+  complemento                 String?
+  bairro                      String   @default("Valverde")
+  cidade                      String   @default("Nova Iguaçu")
+  uf                          String   @default("RJ")
+  telefone                    String?
+  whatsapp                    String?
+  email                       String?
+  logoUrl                     String?
+  regimeTributario            String?  // Pendente do contador
+  informacoesFiscaisAdicionais String?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+
+  @@map("empresa_config")
+}
+
+model ConfiguracaoFiscal {
+  id                     String   @id @default(uuid())
+  inscricaoMunicipal     String?
+  inscricaoEstadual      String?
+  regimeTributario       String?
+  enquadramentoTributario String?
+  codigoServicoMunicipal String?
+  codigoTributacao       String?
+  codigoTributacaoNacional String?
+  descricaoPadraoServico String?
+  aliquota               Float?
+  retencoes              String?
+  ambiente               String   @default("HOMOLOGACAO") // HOMOLOGACAO | PRODUCAO
+  statusIntegracao       String   @default("Pendente de configuração")
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@map("configuracao_fiscal")
 }
 
 model TrafegoSemanal {

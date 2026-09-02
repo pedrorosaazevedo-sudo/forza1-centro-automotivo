@@ -59,21 +59,29 @@ export const getDashboardData = async (req: AuthRequest, res: Response) => {
       }
     });
 
-    // Se no filtro por dia/semana não houver despesas cadastradas naquele dia exato, pega a soma total mensal de despesas dividida/estimada ou todas as despesas fixas da base
     const totalDespesasFixasBase = await prisma.despesaFixa.aggregate({
       _sum: { valor: true }
     });
 
     const despesasPeriodoDireto = despesas.reduce((acc, d) => acc + d.valor, 0);
-    // Para filtro mensal ou customizado usamos despesas do período ou total de despesas ativas
     const despesasTotais = despesasPeriodoDireto > 0 ? despesasPeriodoDireto : (totalDespesasFixasBase._sum.valor || 0);
 
+    // Faturamento e Custos
     const faturamentoBruto = atendimentos.reduce((acc, a) => acc + a.valorTotal, 0);
+    const custoPecasTotais = atendimentos.reduce((acc, a) => acc + a.valorPecas, 0);
+    const valorMaoDeObraTotal = atendimentos.reduce((acc, a) => acc + a.valorServico, 0);
     const comissoesTotais = atendimentos.reduce((acc, a) => acc + a.valorComissao, 0);
-    const lucroLiquido = faturamentoBruto - comissoesTotais - despesasTotais;
+
+    // Lucro Líquido = Faturamento Bruto - Custos de Peças - Comissões - Despesas Operacionais
+    const lucroLiquido = faturamentoBruto - custoPecasTotais - comissoesTotais - despesasTotais;
     const carrosAtendidos = atendimentos.length;
     const ticketMedio = carrosAtendidos > 0 ? faturamentoBruto / carrosAtendidos : 0;
     const margemLucroPercent = faturamentoBruto > 0 ? (lucroLiquido / faturamentoBruto) * 100 : 0;
+
+    // FASE 7: Indicadores Fiscais
+    const nfseEmitidas = atendimentos.filter(a => a.statusFiscal === 'Emitida').length;
+    const nfsePendentes = atendimentos.filter(a => a.statusFiscal !== 'Emitida').length;
+    const nfseErro = atendimentos.filter(a => a.statusFiscal === 'Erro na emissão').length;
 
     // Alertas de Margem
     let alertaMargem = {
@@ -84,7 +92,7 @@ export const getDashboardData = async (req: AuthRequest, res: Response) => {
     if (faturamentoBruto === 0) {
       alertaMargem = { tipo: 'info', mensagem: 'Nenhum atendimento registrado no período selecionado.' };
     } else if (margemLucroPercent < 15) {
-      alertaMargem = { tipo: 'critico', mensagem: `Atenção: Margem de lucro muito baixa (${margemLucroPercent.toFixed(1)}%). Verifique custos de peças e despesas.` };
+      alertaMargem = { tipo: 'critico', mensagem: `Atenção: Margem de lucro reduzida (${margemLucroPercent.toFixed(1)}%). Verifique custos de peças e despesas.` };
     } else if (margemLucroPercent < 30) {
       alertaMargem = { tipo: 'atencao', mensagem: `Margem moderada (${margemLucroPercent.toFixed(1)}%). Ideal buscar acima de 30%.` };
     } else {
@@ -131,12 +139,20 @@ export const getDashboardData = async (req: AuthRequest, res: Response) => {
       datas: { inicio: startDate, fim: endDate },
       kpis: {
         faturamentoBruto,
+        custoPecasTotais,
+        valorMaoDeObraTotal,
         comissoesTotais,
         despesasTotais,
         lucroLiquido,
         carrosAtendidos,
         ticketMedio,
         margemLucroPercent
+      },
+      indicadoresFiscais: {
+        nfseEmitidas,
+        nfsePendentes,
+        nfseErro,
+        totalAtendimentos: carrosAtendidos
       },
       alertaMargem,
       graficoEvolucao,

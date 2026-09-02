@@ -32,7 +32,7 @@ export const generateReceiptPDF = (atendimento: AtendimentoComMecanico): Promise
     if (!hasLogo) {
       doc.fillColor('#f5a623').fontSize(22).font('Helvetica-Bold').text('LEMOKA', 40, 30);
       doc.fillColor('#ffffff').fontSize(14).font('Helvetica').text('CENTRO AUTOMOTIVO', 40, 56);
-      doc.fillColor('#94a3b8').fontSize(9).text('Nova Iguaçu - RJ | Atendimento Especializado', 40, 76);
+      doc.fillColor('#94a3b8').fontSize(9).text('CNPJ: 37.912.027/0001-60 | Nova Iguaçu - RJ', 40, 76);
     }
 
     // Receipt Number & Date (Formatted cleanly on the right)
@@ -44,9 +44,10 @@ export const generateReceiptPDF = (atendimento: AtendimentoComMecanico): Promise
       minute: '2-digit'
     });
 
-    doc.fillColor('#f5a623').fontSize(12).font('Helvetica-Bold').text(`NOTA DE ATENDIMENTO #${atendimento.id.slice(0, 8).toUpperCase()}`, 300, 35, { align: 'right' });
-    doc.fillColor('#cbd5e1').fontSize(10).font('Helvetica').text(`Data: ${formattedDate}`, 300, 55, { align: 'right' });
-    doc.fillColor('#cbd5e1').fontSize(10).text(`Forma de Pagamento: ${atendimento.formaPagamento}`, 300, 72, { align: 'right' });
+    doc.fillColor('#f5a623').fontSize(11).font('Helvetica-Bold').text(`ORDEM DE SERVIÇO / COMPROVANTE INTERNO #${atendimento.id.slice(0, 8).toUpperCase()}`, 260, 32, { align: 'right' });
+    doc.fillColor('#cbd5e1').fontSize(9).font('Helvetica').text(`Data: ${formattedDate}`, 260, 50, { align: 'right' });
+    doc.fillColor('#cbd5e1').fontSize(9).text(`Forma de Pagamento: ${atendimento.formaPagamento}`, 260, 65, { align: 'right' });
+    doc.fillColor('#94a3b8').fontSize(8).text(`(Este documento é um comprovante de serviço interno, não substitui NFS-e)`, 260, 82, { align: 'right' });
 
     doc.moveDown(4);
 
@@ -57,7 +58,7 @@ export const generateReceiptPDF = (atendimento: AtendimentoComMecanico): Promise
 
     y += 26;
     doc.fillColor('#1e293b').fontSize(10).font('Helvetica-Bold').text('Cliente:', 40, y);
-    doc.font('Helvetica').text(atendimento.nomeCliente, 100, y);
+    doc.font('Helvetica').text(atendimento.nomeCliente + (atendimento.clienteDocumento ? ` (CPF/CNPJ: ${atendimento.clienteDocumento})` : ''), 100, y);
 
     doc.font('Helvetica-Bold').text('Telefone:', 340, y);
     doc.font('Helvetica').text(atendimento.telefoneCliente || 'Não informado', 400, y);
@@ -68,6 +69,13 @@ export const generateReceiptPDF = (atendimento: AtendimentoComMecanico): Promise
 
     doc.font('Helvetica-Bold').text('Mecânico:', 340, y);
     doc.font('Helvetica').text(atendimento.mecanico?.nome || 'Não especificado', 400, y);
+
+    if (atendimento.clienteEndereco || atendimento.clienteCidade) {
+      y += 18;
+      doc.font('Helvetica-Bold').text('Endereço:', 40, y);
+      const endStr = `${atendimento.clienteEndereco || ''} ${atendimento.clienteNumero || ''} ${atendimento.clienteBairro ? '- ' + atendimento.clienteBairro : ''} ${atendimento.clienteCidade ? '• ' + atendimento.clienteCidade : ''}`;
+      doc.font('Helvetica').text(endStr.trim(), 100, y);
+    }
 
     // Section 2: Descrição dos Serviços
     y += 35;
@@ -101,11 +109,11 @@ export const generateReceiptPDF = (atendimento: AtendimentoComMecanico): Promise
     doc.fillColor('#ffffff').fontSize(14).font('Helvetica-Bold').text(formatCurrency(atendimento.valorTotal), 440, y + 9, { align: 'right' });
 
     // Footer
-    y += 120;
+    y += 110;
     doc.strokeColor('#cbd5e1').lineWidth(0.5).moveTo(40, y).lineTo(555, y).stroke();
-    y += 12;
-    doc.fillColor('#64748b').fontSize(9).font('Helvetica').text('Lemoka Centro Automotivo - Com Deus Tudo é Possível', 40, y, { align: 'center' });
-    doc.fillColor('#94a3b8').fontSize(8).text('Nova Iguaçu, RJ | Telefone & WhatsApp de Atendimento', 40, y + 14, { align: 'center' });
+    y += 10;
+    doc.fillColor('#64748b').fontSize(9).font('Helvetica').text('Lemoka Centro Automotivo LTDA - CNPJ: 37.912.027/0001-60 - Com Deus Tudo é Possível', 40, y, { align: 'center' });
+    doc.fillColor('#94a3b8').fontSize(8).text('Av. Abilio Augusto Távora, 4505 - Valverde, Nova Iguaçu - RJ, CEP 26290-600', 40, y + 14, { align: 'center' });
 
     doc.end();
   });

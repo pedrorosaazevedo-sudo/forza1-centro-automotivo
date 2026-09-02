@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mecanico, FormaPagamento } from '../types';
 import { api } from '../services/api';
-import { PlusCircle, FileText, Check, AlertCircle, Download, Share2 } from 'lucide-react';
+import { PlusCircle, FileText, Check, AlertCircle, Download, ChevronDown, ChevronUp } from 'lucide-react';
 
 export const NovoAtendimento: React.FC = () => {
   const navigate = useNavigate();
@@ -18,6 +18,17 @@ export const NovoAtendimento: React.FC = () => {
   const [percentualComissao, setPercentualComissao] = useState<string>('25');
   const [formaPagamento, setFormaPagamento] = useState<FormaPagamento>('PIX');
   const [dataAtendimento, setDataAtendimento] = useState<string>(new Date().toISOString().slice(0, 10));
+
+  // FASE 3: Dados Opcionais Tomador / Cliente
+  const [showTomador, setShowTomador] = useState(false);
+  const [clienteDocumento, setClienteDocumento] = useState('');
+  const [clienteEmail, setClienteEmail] = useState('');
+  const [clienteCep, setClienteCep] = useState('');
+  const [clienteEndereco, setClienteEndereco] = useState('');
+  const [clienteNumero, setClienteNumero] = useState('');
+  const [clienteBairro, setClienteBairro] = useState('');
+  const [clienteCidade, setClienteCidade] = useState('');
+  const [clienteUf, setClienteUf] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -67,7 +78,17 @@ export const NovoAtendimento: React.FC = () => {
         valorServico: servicoNum,
         percentualComissao: comissaoPercentNum,
         formaPagamento,
-        data: dataAtendimento
+        data: dataAtendimento,
+
+        // Dados Tomador
+        clienteDocumento,
+        clienteEmail,
+        clienteCep,
+        clienteEndereco,
+        clienteNumero,
+        clienteBairro,
+        clienteCidade,
+        clienteUf
       });
 
       setSucessoAtendimentoId(res.data.id);
@@ -87,7 +108,7 @@ export const NovoAtendimento: React.FC = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Nota_Lemoka_${(nomeCliente || 'Atendimento').replace(/\s+/g, '_')}.pdf`;
+      a.download = `Comprovante_Lemoka_${(nomeCliente || 'Atendimento').replace(/\s+/g, '_')}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -106,6 +127,14 @@ export const NovoAtendimento: React.FC = () => {
     setDescricaoServico('');
     setValorPecas('0');
     setValorServico('0');
+    setClienteDocumento('');
+    setClienteEmail('');
+    setClienteCep('');
+    setClienteEndereco('');
+    setClienteNumero('');
+    setClienteBairro('');
+    setClienteCidade('');
+    setClienteUf('');
   };
 
   if (sucessoAtendimentoId) {
@@ -117,7 +146,7 @@ export const NovoAtendimento: React.FC = () => {
           </div>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--green)' }}>Atendimento Cadastrado!</h2>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '0.4rem' }}>
-            O registro foi salvo no banco de dados e a nota fiscal/orçamento foi gerada.
+            O registro foi salvo com sucesso e a Ordem de Serviço interna foi gerada.
           </p>
 
           <div style={{ background: 'var(--bg-main)', padding: '1.25rem', borderRadius: 'var(--radius-sm)', margin: '1.5rem 0', textAlign: 'left' }}>
@@ -141,7 +170,7 @@ export const NovoAtendimento: React.FC = () => {
               className="btn btn-gold"
               style={{ width: '100%' }}
             >
-              <Download size={18} /> Baixar PDF da Nota (Atendente envia via WhatsApp)
+              <Download size={18} /> Baixar Comprovante Interno (PDF)
             </button>
 
             <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -226,6 +255,114 @@ export const NovoAtendimento: React.FC = () => {
               onChange={(e) => setDataAtendimento(e.target.value)}
             />
           </div>
+        </div>
+
+        {/* FASE 3: Dados Opcionais Tomador / Cliente */}
+        <div style={{ margin: '1rem 0', borderTop: '1px border var(--border-color)', paddingTop: '0.5rem' }}>
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={() => setShowTomador(!showTomador)}
+            style={{ width: '100%', justifyContent: 'space-between' }}
+          >
+            <span>📄 Dados Fiscais / Tomador do Serviço (Opcional para NFS-e)</span>
+            {showTomador ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
+
+          {showTomador && (
+            <div style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', padding: '1rem', borderRadius: 'var(--radius-sm)', marginTop: '0.75rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+                <div className="form-group">
+                  <label className="form-label">CPF ou CNPJ do Cliente</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="000.000.000-00 ou 00.000.000/0001-00"
+                    value={clienteDocumento}
+                    onChange={(e) => setClienteDocumento(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">E-mail do Cliente</label>
+                  <input
+                    type="email"
+                    className="form-input"
+                    placeholder="cliente@email.com"
+                    value={clienteEmail}
+                    onChange={(e) => setClienteEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr 1fr', gap: '0.5rem', marginTop: '0.5rem' }}>
+                <div className="form-group">
+                  <label className="form-label">CEP</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="26000-000"
+                    value={clienteCep}
+                    onChange={(e) => setClienteCep(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Endereço</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Rua / Avenida"
+                    value={clienteEndereco}
+                    onChange={(e) => setClienteEndereco(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Nº</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="123"
+                    value={clienteNumero}
+                    onChange={(e) => setClienteNumero(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem', marginTop: '0.5rem' }}>
+                <div className="form-group">
+                  <label className="form-label">Bairro</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={clienteBairro}
+                    onChange={(e) => setClienteBairro(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Cidade</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={clienteCidade}
+                    onChange={(e) => setClienteCidade(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">UF</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={clienteUf}
+                    onChange={(e) => setClienteUf(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Seção 2: Mecânico e Serviço */}
@@ -334,7 +471,7 @@ export const NovoAtendimento: React.FC = () => {
         </div>
 
         <button type="submit" className="btn btn-gold" style={{ width: '100%', marginTop: '1.5rem', padding: '0.85rem' }} disabled={loading}>
-          {loading ? 'Salvando...' : 'Finalizar Atendimento & Gerar Nota'}
+          {loading ? 'Salvando...' : 'Finalizar Atendimento & Gerar Documento Interno'}
         </button>
       </form>
     </div>

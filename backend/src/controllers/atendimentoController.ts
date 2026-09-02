@@ -17,7 +17,18 @@ export const createAtendimento = async (req: AuthRequest, res: Response) => {
       valorServico,
       percentualComissao,
       formaPagamento,
-      data
+      data,
+
+      // FASE 3: Dados do Cliente/Tomador (Opcionais)
+      clienteDocumento,
+      clienteEmail,
+      clienteCep,
+      clienteEndereco,
+      clienteNumero,
+      clienteComplemento,
+      clienteBairro,
+      clienteCidade,
+      clienteUf
     } = req.body;
 
     if (!nomeCliente || !mecanicoId || !descricaoServico || !formaPagamento) {
@@ -29,7 +40,6 @@ export const createAtendimento = async (req: AuthRequest, res: Response) => {
     const comissaoPercentNum = Number(percentualComissao) || 0;
 
     const valorTotal = pecasNum + servicoNum;
-    // Comissão incide sobre a mão de obra (serviço) ou total se configurado. Padrão oficina: serviço.
     const valorComissao = servicoNum * (comissaoPercentNum / 100);
 
     const atendimentoData = data ? new Date(data) : new Date();
@@ -47,7 +57,21 @@ export const createAtendimento = async (req: AuthRequest, res: Response) => {
         percentualComissao: comissaoPercentNum,
         valorComissao,
         formaPagamento,
-        data: atendimentoData
+        data: atendimentoData,
+
+        // Dados Tomador
+        clienteDocumento: clienteDocumento || null,
+        clienteEmail: clienteEmail || null,
+        clienteCep: clienteCep || null,
+        clienteEndereco: clienteEndereco || null,
+        clienteNumero: clienteNumero || null,
+        clienteComplemento: clienteComplemento || null,
+        clienteBairro: clienteBairro || null,
+        clienteCidade: clienteCidade || null,
+        clienteUf: clienteUf || null,
+
+        // Status Fiscal Padrão (Fase 4 - Não emitida / Pendente de integração)
+        statusFiscal: 'Pendente de configuração'
       },
       include: {
         mecanico: true
@@ -63,7 +87,7 @@ export const createAtendimento = async (req: AuthRequest, res: Response) => {
 
 export const getAtendimentos = async (req: AuthRequest, res: Response) => {
   try {
-    const { dataInicio, dataFim, mecanicoId, busca } = req.query;
+    const { dataInicio, dataFim, mecanicoId, busca, statusFiscal } = req.query;
 
     const where: any = {};
 
@@ -78,12 +102,17 @@ export const getAtendimentos = async (req: AuthRequest, res: Response) => {
       where.mecanicoId = mecanicoId as string;
     }
 
+    if (statusFiscal) {
+      where.statusFiscal = statusFiscal as string;
+    }
+
     if (busca) {
       const term = busca as string;
       where.OR = [
-        { nomeCliente: { contains: term } },
-        { veiculo: { contains: term } },
-        { descricaoServico: { contains: term } }
+        { nomeCliente: { contains: term, mode: 'insensitive' } },
+        { veiculo: { contains: term, mode: 'insensitive' } },
+        { descricaoServico: { contains: term, mode: 'insensitive' } },
+        { clienteDocumento: { contains: term, mode: 'insensitive' } }
       ];
     }
 
@@ -131,7 +160,20 @@ export const updateAtendimento = async (req: AuthRequest, res: Response) => {
       valorServico,
       percentualComissao,
       formaPagamento,
-      data
+      data,
+
+      // Dados Tomador
+      clienteDocumento,
+      clienteEmail,
+      clienteCep,
+      clienteEndereco,
+      clienteNumero,
+      clienteComplemento,
+      clienteBairro,
+      clienteCidade,
+      clienteUf,
+
+      statusFiscal
     } = req.body;
 
     const pecasNum = Number(valorPecas) || 0;
@@ -155,6 +197,18 @@ export const updateAtendimento = async (req: AuthRequest, res: Response) => {
         percentualComissao: comissaoPercentNum,
         valorComissao,
         formaPagamento,
+
+        ...(clienteDocumento !== undefined ? { clienteDocumento } : {}),
+        ...(clienteEmail !== undefined ? { clienteEmail } : {}),
+        ...(clienteCep !== undefined ? { clienteCep } : {}),
+        ...(clienteEndereco !== undefined ? { clienteEndereco } : {}),
+        ...(clienteNumero !== undefined ? { clienteNumero } : {}),
+        ...(clienteComplemento !== undefined ? { clienteComplemento } : {}),
+        ...(clienteBairro !== undefined ? { clienteBairro } : {}),
+        ...(clienteCidade !== undefined ? { clienteCidade } : {}),
+        ...(clienteUf !== undefined ? { clienteUf } : {}),
+        ...(statusFiscal ? { statusFiscal } : {}),
+
         ...(data ? { data: new Date(data) } : {})
       },
       include: { mecanico: true }
@@ -194,7 +248,7 @@ export const downloadPDF = async (req: AuthRequest, res: Response) => {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
       'Content-Disposition',
-      `attachment; filename=Nota_Lemoka_${atendimento.nomeCliente.replace(/\s+/g, '_')}_${atendimento.id.slice(0, 6)}.pdf`
+      `attachment; filename=Comprovante_Lemoka_${atendimento.nomeCliente.replace(/\s+/g, '_')}_${atendimento.id.slice(0, 6)}.pdf`
     );
 
     return res.send(pdfBuffer);

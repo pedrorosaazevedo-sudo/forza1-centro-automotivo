@@ -31,11 +31,17 @@ import {
   getVapidPublicKey,
   triggerScheduledReminder
 } from '../controllers/pushController';
+import {
+  getEmpresaConfig,
+  updateEmpresaConfig,
+  getConfiguracaoFiscal,
+  updateConfiguracaoFiscal
+} from '../controllers/empresaController';
 import { authenticate, requireAdmin } from '../middlewares/auth';
 
 const router = Router();
 
-// Public Auth Routes
+// Public Auth & Push Routes
 router.post('/auth/login', login);
 router.get('/push/vapid-key', getVapidPublicKey);
 
@@ -47,6 +53,13 @@ router.get('/auth/me', getMe);
 
 // Dashboard
 router.get('/dashboard', getDashboardData);
+
+// Empresa & Configurações Fiscais
+router.get('/empresa', getEmpresaConfig);
+router.put('/empresa', requireAdmin, updateEmpresaConfig);
+
+router.get('/fiscal', getConfiguracaoFiscal);
+router.put('/fiscal', requireAdmin, updateConfiguracaoFiscal);
 
 // Atendimentos
 router.get('/atendimentos', getAtendimentos);
